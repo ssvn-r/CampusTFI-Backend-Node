@@ -1,0 +1,24 @@
+# Despliegue en Render (Blueprint).
+#
+# En Render: New → Blueprint → elegir este repositorio. Crea el servicio con
+# esta configuración. Render asigna el puerto en PORT y el servicio escucha
+# en 0.0.0.0 solo (ver src/config.js).
+services:
+  - type: web
+    name: campustfi-catalogos
+    runtime: node
+    plan: free
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /salud
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      # Render la genera al crear el servicio. Copiala del panel y ponela
+      # como CATALOGOS_CLAVE en el .env del backend de Django.
+      - key: CLAVE_INTERNA
+        generateValue: true
+      # Opcional, pero sin ella Google Books devuelve 429 casi siempre.
+      # Se carga a mano en el panel: no viaja por el repositorio.
+      - key: GOOGLE_BOOKS_API_KEY
+        sync: false

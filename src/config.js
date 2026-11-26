@@ -29,13 +29,33 @@ function texto(nombre, pordefecto = null) {
   return valor === undefined || valor === '' ? pordefecto : valor;
 }
 
-export const config = Object.freeze({
-  puerto: entero('PUERTO', 4000),
-  host: texto('HOST', '127.0.0.1'),
+// En una plataforma como Render el puerto lo asigna ella, en `PORT`, y el
+// servicio tiene que escuchar en todas las interfaces para que le llegue el
+// tráfico. En la máquina de desarrollo no hay `PORT`, y se queda en
+// 127.0.0.1, que es lo que impide que quede expuesto sin querer.
+const enPlataforma = texto('PORT') !== null;
 
-  // Si está, se exige en cada petición. Si no, el servicio queda abierto a
-  // quien lo alcance, y por eso el host viene en 127.0.0.1.
-  claveInterna: texto('CLAVE_INTERNA'),
+const host = texto('HOST', enPlataforma ? '0.0.0.0' : '127.0.0.1');
+const claveInterna = texto('CLAVE_INTERNA');
+
+// Publicado sin clave, cualquiera que encuentre la dirección gasta el cupo de
+// Google en nombre del campus. Es mejor que no arranque y lo diga a que
+// arranque abierto y nadie se entere.
+const soloLocal = host === '127.0.0.1' || host === 'localhost' || host === '::1';
+if (!soloLocal && !claveInterna) {
+  throw new Error(
+    `El servicio va a escuchar en ${host}, fuera de esta máquina, y no tiene CLAVE_INTERNA. ` +
+      'Definila (y la misma como CATALOGOS_CLAVE en el backend de Django).',
+  );
+}
+
+export const config = Object.freeze({
+  puerto: entero('PUERTO', entero('PORT', 4000)),
+  host,
+
+  // Si está, se exige en cada petición. Sin ella el servicio solo puede
+  // escuchar en la máquina (ver arriba).
+  claveInterna,
 
   googleApiKey: texto('GOOGLE_BOOKS_API_KEY'),
 

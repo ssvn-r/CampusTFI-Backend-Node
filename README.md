@@ -137,16 +137,45 @@ datos, que es justamente lo que no tiene que tener.
 
 ## Seguridad
 
-- **Escucha en 127.0.0.1.** No se publica: el navegador no lo llama.
-- **Secreto compartido opcional** (`CLAVE_INTERNA` acá, `CATALOGOS_CLAVE` en
-  `backend/.env`). Con `HOST` en 127.0.0.1 no llega nadie de afuera, así que en
-  desarrollo no hace falta; al publicarlo detrás de un proxy, sí.
+- **En desarrollo escucha en 127.0.0.1.** El navegador nunca lo llama: lo
+  llama el backend de Django.
+- **Secreto compartido** (`CLAVE_INTERNA` acá, `CATALOGOS_CLAVE` en
+  `backend/.env`). En la máquina de desarrollo es opcional; **publicado es
+  obligatorio**: si el servicio va a escuchar fuera de la máquina y no tiene
+  clave, no arranca y dice por qué.
 - **No recibe cuerpos.** Solo GET, y sin `express.json()`: no hay forma de
   mandarle 20 MB para que los intente parsear.
 - **No tiene las claves del campus.** Ni Firebase ni R2: no las necesita y no hay
   que dárselas. Lo único sensible que puede tener es la clave de Google Books.
 - **Los errores no cuentan nada.** El 500 responde un mensaje fijo y el detalle
   va al registro del servidor.
+
+## Desplegar en Render
+
+El repositorio trae `render.yaml`, así que se crea solo:
+
+1. En Render: **New → Blueprint** y elegir este repositorio.
+2. Render arma el servicio web con `npm ci --omit=dev` y `npm start`, Node 22 y
+   el chequeo de salud en `/salud`.
+3. Genera `CLAVE_INTERNA` sola. Copiala del panel (Environment).
+4. Opcional: cargar `GOOGLE_BOOKS_API_KEY` en el panel. Sin ella Google
+   devuelve 429 casi siempre y solo responde Open Library.
+
+Del lado de Django, en `backend/.env`:
+
+```
+CATALOGOS_URL=https://<el-servicio>.onrender.com
+CATALOGOS_CLAVE=<la misma CLAVE_INTERNA>
+```
+
+Render asigna el puerto en `PORT`; con esa variable presente el servicio
+escucha en `0.0.0.0` (ver `src/config.js`). No hace falta definir `PUERTO` ni
+`HOST`.
+
+**El plan gratuito se duerme** tras un rato sin uso, y la primera búsqueda
+después tarda en despertarlo. Esa primera vez el campus puede mostrar los
+catálogos externos como «no disponibles»; la siguiente ya responde. La
+biblioteca de cada materia no depende de este servicio.
 
 ## Las pruebas
 
