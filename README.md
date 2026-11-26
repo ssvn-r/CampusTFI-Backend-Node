@@ -156,7 +156,8 @@ El repositorio trae `render.yaml`, así que se crea solo:
 
 1. En Render: **New → Blueprint** y elegir este repositorio.
 2. Render arma el servicio web con `npm ci --omit=dev` y `npm start`, Node 22 y
-   el chequeo de salud en `/salud`.
+   el chequeo de salud en `/vivo` (que no pide clave y solo dice «bien»;
+   `/salud`, con el detalle, sí la pide).
 3. Genera `CLAVE_INTERNA` sola. Copiala del panel (Environment).
 4. Opcional: cargar `GOOGLE_BOOKS_API_KEY` en el panel. Sin ella Google
    devuelve 429 casi siempre y solo responde Open Library.

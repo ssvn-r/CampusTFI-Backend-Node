@@ -57,3 +57,10 @@ test('la salud también queda detrás de la clave', async () => {
   const respuesta = await fetch(`${servidor.base}/salud`);
   assert.equal(respuesta.status, 401);
 });
+
+test('/vivo responde sin clave y sin contar nada', async () => {
+  // Es lo que mira Render, que no tiene la clave.
+  const respuesta = await fetch(`${servidor.base}/vivo`);
+  assert.equal(respuesta.status, 200);
+  assert.deepEqual(await respuesta.json(), { estado: 'bien' });
+});

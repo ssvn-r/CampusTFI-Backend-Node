@@ -26,6 +26,14 @@ const freno = new Freno({ porMinuto: config.frenoPorMinuto });
 export function crearRutas() {
   const rutas = express.Router();
 
+  // ===================== Vivo =====================
+  // Lo que consulta la plataforma (Render) para saber si el servicio está
+  // arriba. Va antes de la clave porque la plataforma no la tiene, y por eso
+  // no dice nada más que «sí»: el detalle está en /salud, que sí la pide.
+  rutas.get('/vivo', (_peticion, respuesta) => {
+    respuesta.json({ estado: 'bien' });
+  });
+
   // ===================== El secreto compartido =====================
   rutas.use((peticion, respuesta, seguir) => {
     if (!config.claveInterna) return seguir();

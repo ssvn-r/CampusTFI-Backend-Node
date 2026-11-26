@@ -10,7 +10,8 @@ services:
     plan: free
     buildCommand: npm ci --omit=dev
     startCommand: npm start
-    healthCheckPath: /salud
+    # /vivo y no /salud: /salud pide la clave interna y Render no la tiene.
+    healthCheckPath: /vivo
     envVars:
       - key: NODE_VERSION
         value: "22"
